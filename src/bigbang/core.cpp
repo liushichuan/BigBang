@@ -18,7 +18,7 @@ using namespace xengine;
 
 #define DEBUG(err, ...) Debug((err), __FUNCTION__, __VA_ARGS__)
 
-//#define BBCP_SET_TOKEN_DISTRIBUTION
+#define BBCP_SET_TOKEN_DISTRIBUTION
 
 static const int64 MAX_CLOCK_DRIFT = 80;
 
@@ -43,7 +43,7 @@ static const int64 DELEGATE_PROOF_OF_STAKE_UNIT_AMOUNT = 1000 * COIN;
 static const int64 DELEGATE_PROOF_OF_STAKE_MAXIMUM_TIMES = 1000000 * COIN;
 
 // dpos begin height
-static const uint32 DELEGATE_PROOF_OF_STAKE_HEIGHT = 1;
+static const uint32 DELEGATE_PROOF_OF_STAKE_HEIGHT = 243800;
 
 #ifndef BBCP_SET_TOKEN_DISTRIBUTION
 static const int64 BBCP_TOKEN_INIT = 300000000;
@@ -934,7 +934,7 @@ int64 CCoreProtocol::GetPrimaryMintWorkReward(const CBlockIndex* pIndexPrev)
 #endif
 }
 
-void CCoreProtocol::GetDelegatedBallot(const uint256& nAgreement, size_t nWeight, const map<CDestination, size_t> mapBallot,
+void CCoreProtocol::GetDelegatedBallot(const uint256& nAgreement, size_t nWeight, const map<CDestination, size_t>& mapBallot,
                                        const vector<pair<CDestination, int64>>& vecAmount, int64 nMoneySupply, vector<CDestination>& vBallot, size_t& nEnrollTrust, int nBlockHeight)
 {
     vBallot.clear();
