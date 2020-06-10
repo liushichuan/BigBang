@@ -142,7 +142,8 @@ static void console_formatter(logging::record_view const& rec, logging::formatti
 
 typedef sinks::text_file_backend backend_t;
 typedef sinks::bounded_fifo_queue<10000, sinks::block_on_overflow> bounded_fifo_queue_t;
-typedef sinks::asynchronous_sink<backend_t,bounded_fifo_queue_t> sink_t;
+typedef sinks::synchronous_sink<backend_t> sink_t;
+typedef sinks::synchronous_sink<sinks::text_ostream_backend> text_sink_t;
 
 class CBoostLog
 {
@@ -185,8 +186,7 @@ public:
         sink->set_filter(filter);
         if (!daemon)
         {
-            typedef sinks::synchronous_sink<sinks::text_ostream_backend> text_sink;
-            boost::shared_ptr<text_sink> sink_console = boost::make_shared<text_sink>();
+            sink_console = boost::make_shared<text_sink_t>();
             boost::shared_ptr<std::ostream> stream(&std::clog, boost::null_deleter());
             sink_console->locked_backend()->add_stream(stream);
             sink_console->set_formatter(&console_formatter);
@@ -199,14 +199,19 @@ public:
     {
         if (sink != nullptr)
         {
-            // Remove all of sinks from the core, so that no records are passed to it
-            logging::core::get()->remove_all_sinks();
-            sink->stop();
             sink->flush();
             sink.reset();
         }
+
+        if(sink_console != nullptr)
+        {
+            sink_console->flush();
+            sink_console.reset();
+        }
     }
     boost::shared_ptr<sink_t> sink = nullptr;
+    boost::shared_ptr<text_sink_t> sink_console = nullptr;
+    
 };
 
 static CBoostLog g_log;
