@@ -141,9 +141,8 @@ static void console_formatter(logging::record_view const& rec, logging::formatti
 }
 
 typedef sinks::text_file_backend backend_t;
-typedef sinks::asynchronous_sink<
-    backend_t>
-    sink_t;
+typedef sinks::bounded_fifo_queue<10000, sinks::block_on_overflow> bounded_fifo_queue_t;
+typedef sinks::asynchronous_sink<backend_t,bounded_fifo_queue_t> sink_t;
 
 class CBoostLog
 {
@@ -200,8 +199,11 @@ public:
     {
         if (sink != nullptr)
         {
+            // Remove all of sinks from the core, so that no records are passed to it
+            logging::core::get()->remove_all_sinks();
             sink->stop();
             sink->flush();
+            sink.reset();
         }
     }
     boost::shared_ptr<sink_t> sink = nullptr;
